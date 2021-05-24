@@ -1,7 +1,7 @@
 import csv
 import sys
 
-from util import Node, StackFrontier, QueueFrontier
+from util import Node, QueueFrontier
 
 # Maps names to a set of corresponding person_ids
 names = {}
@@ -55,7 +55,7 @@ def load_data(directory):
 def main():
     if len(sys.argv) > 2:
         sys.exit("Usage: python degrees.py [directory]")
-    directory = sys.argv[1] if len(sys.argv) == 2 else "small" # TODO: change back to large!!
+    directory = sys.argv[1] if len(sys.argv) == 2 else "large" # TODO: change back to large!!
 
     # Load data from files into memory
     print("Loading data...")
@@ -91,29 +91,23 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-
-    # TODO
     #neighbors_for_person(person_id):
     #Returns (movie_id, person_id) pairs for people
     #who starred with a given person.
     frontier = QueueFrontier()
-    state = [source]
-    node = Node(state, None, neighbors_for_person(source))
+    node = Node([], None, neighbors_for_person(source))
     frontier.add(node)
     while not frontier.empty():
         active_node = frontier.remove()
         for neighbor in active_node.action:
             if neighbor[1] == target:
-                return active_node.state + [("target")]
+                return active_node.state + [neighbor]
+            elif neighbor[0] in [mids[0] for mids in active_node.state] or neighbor[1] in [pids[1] for pids in active_node.state]:
+                continue
             else:
-                new_node = Node(state.append(neighbor), active_node, neighbors_for_person(neighbor[1]))
+                new_node = Node(active_node.state + [neighbor], active_node, neighbors_for_person(neighbor[1]))
                 frontier.add(new_node)
-
     return None
-
-
-
-    raise NotImplementedError
 
 
 def person_id_for_name(name):
